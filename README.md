@@ -41,7 +41,7 @@ React.render( <CommentBox />, document.getElementById('content'));
 ```
 React.render() instantiates the root component, starts the framework, and injects the markup into a raw DOM element provided as the second argument. Now the component will be shown on screen.
 
-### Building CommentBox component
+#### Building CommentBox component
 
 What we will continue to build is a simple commenting functionality, with the following component structure:
 - CommentBox
@@ -127,7 +127,7 @@ var CommentList = React.createClass({
 ```
 This will render the data dynamically. With this, Comment and CommentList components are finished.
 
-### Reactive state
+#### Reactive state
 
 So far, each component has rendered itself once based on its props. props are immutable: they are passed from the parent and are "owned" by the parent. To implement interactions, we introduce mutable state to the component. this.state is private to the component and can be changed by calling this.setState(). When the state is updated, the component re-renders itself.
 render() methods are written declaratively as functions of this.props and this.state. The framework guarantees the UI is always consistent with the inputs.
@@ -153,7 +153,7 @@ componentDidMount: function () {
 ```
 getInitialState() executes exactly once during the lifecycle of the component and sets up the initial state of the component. componentDidMount is a method called automatically by React when a component is rendered. The key to dynamic updates is the call to this.setState(), which also automatically re-renders the component.
 
-### Adding new comments
+#### Adding new comments
 
 Now we want to enable interactivity, through adding new comments. Unlike showing components, this requires some more thinking. When the user submits the form, we should clear it, memorize the new comment, and refresh the list of comments. To start, let's define the form and listen for it's submit event:
 ```
@@ -185,7 +185,7 @@ Next we will implement clearing the input fields:
 ```
 We use the ref attribute to assign a name to a child component and this.refs to reference the component. We can call getDOMNode() on a component to get the native browser DOM element.
 
-### Memorizing New Comments
+#### Memorizing New Comments
 
 For the end, we will implement the most complicated functionality – memorizing new comments. We will start by fetching the text from input fields and immediately returning if either of the fields is empty:
 ```
