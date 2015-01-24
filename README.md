@@ -5,6 +5,9 @@ This is my first commit to GitHub, which may give you a boost in confidence if y
 I am starting out with JavaScript React, which I have chosen after experimenting with many JS frameworks (Angular and Backbone, among others). One part of the reason for using React is it's extension, Flux, an almost-framework for JS which rejects two very popular approaches to front-end design: two-way data binding and MVC pattern. They are replaced with, in my opinion, much more rational one-way binding and streamlined event model. You can check out these videos on this topic: https://www.youtube.com/watch?v=nYkdrAPrdcw#t=0h10m24s and https://www.youtube.com/watch?v=Bic_sFiaNDI. However, there is one place where Flux is somewhat lacking - the data layer. But Backbone's model, collection and sync services seems to fill this gap perfectly – as  you can read here: http://www.toptal.com/front-end/simple-data-flow-in-react-applications-using-flux-and-backbone. I really recommend you to skim through this article as it convincingly explains why to choose React+Backbone for your front-end.
 As for the in-coming technology which rivals React, web-component standard based Polymer from Google, since it requires native browser support, you can't do much with it at the moment, so React is currently the only choice for building composable web user interfaces. I personally find React and Backbone to be a great match, and with Node and MongoDB on the server side, which are both minimalistic JS-centric projects, they are a complete and simple solution for web applications.
 So I decided to write a succinct introduction to React, a parallel version of the program from the official React site http://facebook.github.io/react/docs/tutorial.html, only without server side related code and with modular instead of single-file structure. This will be achieved using CommonJS modules and the belonging npm package manager.
+
+## Introduction to React
+
 React is all about building web interfaces out of composable and lightning-fast rendering view components. A React view component is nothing else but a JavaScript object instance which can contain a number of standard methods, of which render method, which shows a component, is the only mandatory one. This is how we create a component:
 ```
 var CommentBox = React.createClass({
@@ -33,8 +36,13 @@ Now we need some HTML to insert this in:
 </html>
 ```
 After you insert the component inside the script tag, nothing will be render yet, because we need to instruct React to render the component, like so:
+```
 React.render( <CommentBox />, document.getElementById('content'));
+```
 React.render() instantiates the root component, starts the framework, and injects the markup into a raw DOM element provided as the second argument. Now the component will be shown on screen.
+
+### Building CommentBox component
+
 What we will continue to build is a simple commenting functionality, with the following component structure:
 - CommentBox
   - CommentList
@@ -118,6 +126,9 @@ var CommentList = React.createClass({
 });
 ```
 This will render the data dynamically. With this, Comment and CommentList components are finished.
+
+### Reactive state
+
 So far, each component has rendered itself once based on its props. props are immutable: they are passed from the parent and are "owned" by the parent. To implement interactions, we introduce mutable state to the component. this.state is private to the component and can be changed by calling this.setState(). When the state is updated, the component re-renders itself.
 render() methods are written declaratively as functions of this.props and this.state. The framework guarantees the UI is always consistent with the inputs.
 Let's add an array of comment data to the CommentBox component as its state:
@@ -141,6 +152,9 @@ componentDidMount: function () {
 });
 ```
 getInitialState() executes exactly once during the lifecycle of the component and sets up the initial state of the component. componentDidMount is a method called automatically by React when a component is rendered. The key to dynamic updates is the call to this.setState(), which also automatically re-renders the component.
+
+### Adding new comments
+
 Now we want to enable interactivity, through adding new comments. Unlike showing components, this requires some more thinking. When the user submits the form, we should clear it, memorize the new comment, and refresh the list of comments. To start, let's define the form and listen for it's submit event:
 ```
 var CommentForm = React.createClass({
@@ -170,6 +184,9 @@ Next we will implement clearing the input fields:
     this.refs.text.getDOMNode().value = '';
 ```
 We use the ref attribute to assign a name to a child component and this.refs to reference the component. We can call getDOMNode() on a component to get the native browser DOM element.
+
+### Memorizing New Comments
+
 For the end, we will implement the most complicated functionality – memorizing new comments. We will start by fetching the text from input fields and immediately returning if either of the fields is empty:
 ```
 	...
@@ -212,10 +229,16 @@ The callback itself, called  handleCommentSubmit, is defined like this:
 ```
 So in our parent's render method we pass a callback handleCommentSubmit into the child, through attribute onCommentSubmit. Now, whenever the onSubmit event is triggered from CommentForm, handleCommentSubmit callback from CommentBox will be invoked, which as you can see adds comment to commentsData array and than updates the state of CommentBox accordingly.
 And this completes the example. When you now save and double-click the html file you should get the example working.
-What is not demonstrated here but is on official React site, is that React is safe - which means you can not directly create HTML from it. Only React itself does inserting HTML, while if you try to do this yourself through JavaScript, browser will not render HTML but will show plain text, such as “<h1>This is not HTML</h1>”. This is done to disable XSS attacks. If you still need to process HTML however, it can be done, as shown on official React site, but is not recommended.
+What is not demonstrated here but is on official React site, is that React is safe - which means you can not directly create HTML from it. Only React itself does inserting HTML, while if you try to do this yourself through JavaScript, browser will not render HTML but will show plain text. This is done to disable XSS attacks. If you still need to process HTML however, it can be done, as shown on official React site, but is not recommended.
+
+## React and CommonJS Modules
+
 Now I will show how React is used in a modular fashion. To this end we will utilize CommonJS format and npm package manager. If you don't have npm installed you can do it from debian linuxes command line like so: sudo apt-get install npm. Now enter the directory which will hold the program and type npm init to start the project. You can just press enter on each question that will appear. After you are finished you will get project.json file in the directory, the all-important file in every npm project.
-Next get React packed for npm like this: npm install --save react. --save flag means react package will be listed as a dependency in project.json file (otherwise it won't). You will see a new folder named node_modules, which is the place where npm holds locally present modules (we will soon see a different use case – globally installed modules) and react folder inside. Before trying out react prepacked like this, we will modularize the program by putting views in individual modules, inside the /app/views folder. /app folder usually holds the JavaScript files used by the application, where app.js is the main JavaScript file that wires everything up.
-Now simply copy component code in separate files, named as that component with .jsx extension. However, in every file you need to add reference to react: var React = require('react'); This is the standard way to use npm modules. Because we want to use these modules elsewhere, we also add an export statement on the end of the file: module.exports = <ReactComponentName> (replace with actual name).
+Next, get React packed for npm like this: npm install --save react. --save flag means react package will be listed as a dependency in project.json file (otherwise it won't). You will see a new folder named node_modules, which is the place where npm holds locally present modules (we will soon see a different use case – globally installed modules) and react folder inside. Before trying out react prepacked like this, we will modularize the program by putting views in individual modules, inside the /app/views folder. /app folder usually holds the JavaScript files used by the application, where app.js is the main JavaScript file that wires everything up.
+
+### Modularizng The Application
+
+Simply copy component code in separate files, named as that component with .jsx extension. However, in every file you need to add reference to react: var React = require('react'); This is the standard way to use npm modules. Because we want to use these modules elsewhere, we also add an export statement on the end of the file: module.exports = <ReactComponentName> (replace with actual name).
 Next, in the app folder put the following commentsData.js file:
 ```
 var commentsData = [ 
@@ -234,6 +257,9 @@ var CommentList = require('views/CommentList');
 var CommentForm = require('views/CommentForm');
 var commentsData = require('commentsData');
 ```
+
+### Compiling JSX
+
 We now need to compile these jsx files  to plain JavaScript. We do this with jsx tool, which can be installed as an npm module as following: npm install -g jsx. -g switch means that the module will be installed globaly and not in the node_modules folder. Now, I admit I have some troubles in using this command as it should be used, to compile the whole directory. I typed like so instead: 'jsx CommentBox.jsx > CommentBox.js' for each file. Anyway you will end up with 4 .js files.
 The main JavaScript file, app.js inside of the app folder, will look like this:
 ```
@@ -242,6 +268,9 @@ var CommentBox = require('views/CommentBox.js');
 var commentsData = require('commentsData');
 React.render( <CommentBox data={commentsData} />, document.getElementById('content'));
 ```
+
+### Using Browserify
+
 Since browser natively doesn't support CommonJS modules, we need special tool to use them. We will use browserify, although webpack is another very popular one with even more options. Browserify does two things: it walks up the dependency tree defined with require commands and bundles all necessary files into a single file, and defines require command that we can use from the browser. We will also use reactify, a tool which allows us to bundle jsx files from browserify. We install browserify with the -g switch and reactify localy, but with --save-dev instead --save switch, which means that this is a development dependency and is not needed in production.
 Now, because of the way on which CommonJS works, browserify will not be able to find modules in the app folder - but we can circumvent this by using symbolic links: we make node-modules directory inside of app directory, cd to that directory and issue 'ln -sf ../views' and 'ln -sf ../commentsData' command.
 Browserify will now be used like this: browserify -t reactify index.js > public/js/bundle.js. -t switch means we are applying transform on the index.js file, but be careful: transform is only applied to the top-level files, which is app.js in our case. The files that we require from app.js will not be transformed so we need to compile them by hand, which we already did.
@@ -259,6 +288,9 @@ Finally, before trying this out we need our html file, which we put in the publi
 </html>
 ```
 Notice how we only reference bundle.js JavaScript, since browserify will bundle all the JS files we need into this single file. If everything works fine, by double-clicking the html you will get the same result as when previously running from the single file.
+
+### Using npm as Build Tool
+
 On a final note, I would advise you NOT to use the very popular grunt or gulp task managers, but instead to use npm for scripting the tasks. Here is the text that explains why: http://blog.keithcirkel.co.uk/why-we-should-stop-using-grunt/.
 To do this open package.json file and add the following lines bellow the dependencies section:
 ```
